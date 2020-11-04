@@ -3,7 +3,7 @@ const figlet = require("figlet");
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
-const helper = require("./helpers");
+const chalk = require("chalk");
 
 // create the connection
 var connection = mysql.createConnection({
@@ -79,13 +79,45 @@ function mainMenu() {
 		.then((answer) => {
 			switch (answer.main) {
 				case "Add a department":
-					helper.addDepartment();
-					mainMenu();
+					addDepartment();
 					break;
 				case "Exit":
 					connection.end();
 					break;
 			}
+		});
+}
+
+function addDepartment() {
+	console.log("this is the department...");
+	inquirer
+		.prompt([
+			{
+				type: "input",
+				message: "What department would you like to add?",
+				name: "name",
+			},
+		])
+		.then((response) => {
+			let query = connection.query(
+				"INSERT INTO departments SET ?",
+				{
+					name: response.name,
+				},
+				function (err, res) {
+					if (err) throw err;
+					console.log(
+						chalk.green(
+							`${response.name} was department added to the department list!\nBelow is a list of all departments within your organization:`
+						)
+					);
+				}
+			);
+			connection.query("SELECT * FROM departments", function (err, res) {
+				if (err) throw err;
+				console.table(res);
+				connection.end();
+			});
 		});
 }
 
