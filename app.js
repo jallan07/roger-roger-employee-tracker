@@ -58,19 +58,9 @@ function mainMenu() {
 				type: "list",
 				message: "What would you like to do?",
 				choices: [
+					"View all employees",
+					// "View all employees by department",
 					"Add a department",
-					"Add a role",
-					"Add an employee",
-					// "Delete a department",
-					// "Delete a role",
-					// "Delete an employee",
-					// "Update an employee",
-					// "Update a manager",
-					// "View a department",
-					// "View a role",
-					// "View an employee",
-					// "View employees by manager",
-					// "View total utilized budget for a department",
 					"Exit",
 				],
 				name: "main",
@@ -78,6 +68,9 @@ function mainMenu() {
 		])
 		.then((answer) => {
 			switch (answer.main) {
+				case "View all employees":
+					viewAllEmployees();
+					break;
 				case "Add a department":
 					addDepartment();
 					break;
@@ -88,6 +81,7 @@ function mainMenu() {
 		});
 }
 
+// add a department
 function addDepartment() {
 	console.log("this is the department...");
 	inquirer
@@ -96,6 +90,13 @@ function addDepartment() {
 				type: "input",
 				message: "What department would you like to add?",
 				name: "name",
+				validate: function (value) {
+					if (!value) {
+						console.log("Please enter a name for the department.");
+						return false;
+					}
+					return true;
+				},
 			},
 		])
 		.then((response) => {
@@ -107,7 +108,7 @@ function addDepartment() {
 				function (err, res) {
 					if (err) throw err;
 					console.log(
-						chalk.green(
+						chalk.bgCyan(
 							`${response.name} was department added to the department list!\nBelow is a list of all departments within your organization:`
 						)
 					);
@@ -119,6 +120,18 @@ function addDepartment() {
 				connection.end();
 			});
 		});
+}
+
+// view all employees
+function viewAllEmployees() {
+	console.log("Path not yet finished...");
+	let query = connection.query(
+		"SELECT employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON (employees.role_id = roles.title)",
+		function (err, res) {
+			if (err) throw err;
+			console.log(res);
+		}
+	);
 }
 
 // =============================

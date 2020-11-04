@@ -18,42 +18,64 @@ CREATE TABLE departments (
 CREATE TABLE roles (
     id INT NOT NULL AUTO_INCREMENT,
     title VARCHAR(30),
-    salary DECIMAL,
+    salary DECIMAL (10, 2),
     department_id INT NOT NULL REFERENCES departments(id),
     PRIMARY KEY (id)
 );
 
--- create the roles table
+-- create the employees table
 CREATE TABLE employees (
     id INT NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(30),
     last_name VARCHAR(30),
     role_id INT NOT NULL REFERENCES roles(id),
-    manager_id INT NULL,
+    manager_id INT NULL REFERENCES employees(id),
     PRIMARY KEY (id)
 );
 
--- add some dummy data to the departments tables
-INSERT INTO departments (name)
-VALUES ("marketing");
+-- -- add some dummy data to the departments tables
+-- INSERT INTO departments (name)
+-- VALUES ("Finance");
 
-INSERT INTO departments (name)
-VALUES ("sales");
+-- INSERT INTO departments (name)
+-- VALUES ("Operations");
 
-INSERT INTO departments (name)
-VALUES ("product");
+-- INSERT INTO departments (name)
+-- VALUES ("Dev");
 
-INSERT INTO departments (name)
-VALUES ("human resources");
+-- INSERT INTO departments (name)
+-- VALUES ("Sales");
 
-INSERT INTO departments (name)
-VALUES ("finance");
+-- -- add some dummy data to the roles tables
+-- INSERT INTO roles (title, salary, department_id)
+-- VALUES ("Senior Financial Analyst", "105,300.23", "1");
 
--- add some dummy data to the roles tables
-INSERT INTO roles (title, salary, department_id)
-VALUES ("software engineer", "90000", "3");
+-- INSERT INTO roles (title, salary, department_id)
+-- VALUES ("General Manager", "63,872.15", "2");
 
-INSERT INTO roles (title, salary, department_id)
-VALUES ("senior accountant", "100000", "5");
+-- INSERT INTO roles (title, salary, department_id)
+-- VALUES ("Software Engineer IV", "54,101.78", "3");
 
+-- INSERT INTO roles (title, salary, department_id)
+-- VALUES ("Web Designer I", "92,102.50", "3");
+
+-- INSERT INTO roles (title, salary, department_id)
+-- VALUES ("Account Executive", "81,683.91", "4");
+
+-- INSERT INTO roles (title, salary, department_id)
+-- VALUES ("Junior Financial Analyst", "77,642.87", "1");
+
+-- INSERT INTO roles (title, salary, department_id)
+-- VALUES ("Assistant General Manager", "90,883.07", "2");
+
+-- INSERT INTO roles (title, salary, department_id)
+-- VALUES ("Assistant General Manager", "90,883.07", "2");
+
+
+
+
+
+-- ================
 -- add some dummy data to the employees tables
+INSERT INTO employees (first_name, last_name, role_id)
+VALUES ("");
