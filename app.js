@@ -126,10 +126,10 @@ function addDepartment() {
 function viewAllEmployees() {
 	console.log("Path not yet finished...");
 	let query = connection.query(
-		"SELECT employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON (employees.role_id = roles.title)",
+		"SELECT employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON (employees.id = roles.id)",
 		function (err, res) {
 			if (err) throw err;
-			console.log(res);
+			console.table(res);
 		}
 	);
 }
