@@ -33,7 +33,7 @@ CREATE TABLE employees (
     PRIMARY KEY (id)
 );
 
--- add some initial departments to the tables
+-- add some dummy data to the departments tables
 INSERT INTO departments (name)
 VALUES ("marketing");
 
@@ -49,9 +49,11 @@ VALUES ("human resources");
 INSERT INTO departments (name)
 VALUES ("finance");
 
--- add some initial roles to the tables
+-- add some dummy data to the roles tables
 INSERT INTO roles (title, salary, department_id)
 VALUES ("software engineer", "90000", "3");
 
 INSERT INTO roles (title, salary, department_id)
 VALUES ("senior accountant", "100000", "5");
+
+-- add some dummy data to the employees tables
