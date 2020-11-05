@@ -20,6 +20,7 @@ CREATE TABLE roles (
     title VARCHAR(30),
     salary DECIMAL (10, 2),
     department_id INT NOT NULL REFERENCES departments(id),
+    -- maybe add foreign key in the future
     PRIMARY KEY (id)
 );
 
@@ -32,50 +33,3 @@ CREATE TABLE employees (
     manager_id INT NULL REFERENCES employees(id),
     PRIMARY KEY (id)
 );
-
--- -- add some dummy data to the departments tables
--- INSERT INTO departments (name)
--- VALUES ("Finance");
-
--- INSERT INTO departments (name)
--- VALUES ("Operations");
-
--- INSERT INTO departments (name)
--- VALUES ("Dev");
-
--- INSERT INTO departments (name)
--- VALUES ("Sales");
-
--- -- add some dummy data to the roles tables
--- INSERT INTO roles (title, salary, department_id)
--- VALUES ("Senior Financial Analyst", "105,300.23", "1");
-
--- INSERT INTO roles (title, salary, department_id)
--- VALUES ("General Manager", "63,872.15", "2");
-
--- INSERT INTO roles (title, salary, department_id)
--- VALUES ("Software Engineer IV", "54,101.78", "3");
-
--- INSERT INTO roles (title, salary, department_id)
--- VALUES ("Web Designer I", "92,102.50", "3");
-
--- INSERT INTO roles (title, salary, department_id)
--- VALUES ("Account Executive", "81,683.91", "4");
-
--- INSERT INTO roles (title, salary, department_id)
--- VALUES ("Junior Financial Analyst", "77,642.87", "1");
-
--- INSERT INTO roles (title, salary, department_id)
--- VALUES ("Assistant General Manager", "90,883.07", "2");
-
--- INSERT INTO roles (title, salary, department_id)
--- VALUES ("Assistant General Manager", "90,883.07", "2");
-
-
-
-
-
--- ================
--- add some dummy data to the employees tables
-INSERT INTO employees (first_name, last_name, role_id)
-VALUES ("");

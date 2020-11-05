@@ -41,11 +41,11 @@ function welcomePrompt() {
 			console.log(data);
 		});
 		// add lines under the ascii art
-		console.log("\r", "-".repeat(54));
+		console.log("\r\n", "-".repeat(54));
 		console.log(
-			"With Roger Roger, you can update, track, and delete team members from your employee database. Let's get started."
+			"\r\nWith Roger Roger, you can update, track, and delete \r\nteam members from your employee database. Let's get \r\nstarted."
 		);
-		console.log("\r", "-".repeat(54));
+		console.log("\r\n", "-".repeat(54), "\r\n");
 		mainMenu();
 	});
 }
@@ -124,9 +124,12 @@ function addDepartment() {
 
 // view all employees
 function viewAllEmployees() {
-	console.log("Path not yet finished...");
+	console.log("Path not yet finished...\r\n");
 	let query = connection.query(
-		"SELECT employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON (employees.id = roles.id)",
+		'SELECT employees.first_name AS "First Name", employees.last_name AS "Last Name", roles.title AS "Position", employees.manager_id AS "Manager" ' +
+			"FROM employees " +
+			"INNER JOIN roles " +
+			"ON (employees.id = roles.id)",
 		function (err, res) {
 			if (err) throw err;
 			console.table(res);
