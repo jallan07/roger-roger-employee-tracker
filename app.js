@@ -58,8 +58,9 @@ function mainMenu() {
 				type: "list",
 				message: "What would you like to do?",
 				choices: [
-					"View all employees",
-					// "View all employees by department",
+					"View all employees (by ID)",
+					"View all employees (by department)",
+					"View all employees (by manager)",
 					"Add a department",
 					"Exit",
 				],
@@ -68,8 +69,14 @@ function mainMenu() {
 		])
 		.then((answer) => {
 			switch (answer.main) {
-				case "View all employees":
+				case "View all employees (by ID)":
 					viewAllEmployees();
+					break;
+				case "View all employees (by department)":
+					viewAllEmployeeDepartments();
+					break;
+				case "View all employees (by manager)":
+					viewAllEmployeeManagers();
 					break;
 				case "Add a department":
 					addDepartment();
@@ -122,17 +129,62 @@ function addDepartment() {
 		});
 }
 
-// view all employees
+// view all employees (by ID)
 function viewAllEmployees() {
-	console.log("Path not yet finished...\r\n");
+	console.log(
+		chalk.green("\r\nHere are all employees, ordered by ID numbers:\r\n")
+	);
 	let query = connection.query(
-		'SELECT employees.first_name AS "First Name", employees.last_name AS "Last Name", roles.title AS "Position", employees.manager_id AS "Manager" ' +
+		'SELECT employees.id AS "ID", employees.first_name AS "First Name", employees.last_name AS "Last Name", roles.title AS "Position", roles.salary AS "Salary", departments.name AS "Department", employees.manager_id AS "Manager" ' +
 			"FROM employees " +
 			"INNER JOIN roles " +
-			"ON (employees.id = roles.id)",
+			"ON (employees.role_id = roles.id) " +
+			"INNER JOIN departments " +
+			"ON (roles.department_id = departments.id)",
 		function (err, res) {
 			if (err) throw err;
 			console.table(res);
+			mainMenu();
+		}
+	);
+}
+// view all employees (by department)
+function viewAllEmployeeDepartments() {
+	console.log(
+		chalk.green("\r\nHere are all employees, ordered by departments:\r\n")
+	);
+	let query = connection.query(
+		'SELECT employees.id AS "ID", employees.first_name AS "First Name", employees.last_name AS "Last Name", roles.title AS "Position", roles.salary AS "Salary", departments.name AS "Department", employees.manager_id AS "Manager" ' +
+			"FROM employees " +
+			"INNER JOIN roles " +
+			"ON (employees.role_id = roles.id) " +
+			"INNER JOIN departments " +
+			"ON (roles.department_id = departments.id) " +
+			"ORDER BY departments.name",
+		function (err, res) {
+			if (err) throw err;
+			console.table(res);
+			mainMenu();
+		}
+	);
+}
+// view all employees (by manager)
+function viewAllEmployeeManagers() {
+	console.log(
+		chalk.green("\r\nHere are all employees, ordered by managers:\r\n")
+	);
+	let query = connection.query(
+		'SELECT employees.id AS "ID", employees.first_name AS "First Name", employees.last_name AS "Last Name", roles.title AS "Position", roles.salary AS "Salary", departments.name AS "Department", employees.manager_id AS "Manager" ' +
+			"FROM employees " +
+			"INNER JOIN roles " +
+			"ON (employees.role_id = roles.id) " +
+			"INNER JOIN departments " +
+			"ON (roles.department_id = departments.id) " +
+			"ORDER BY employees.manager_id",
+		function (err, res) {
+			if (err) throw err;
+			console.table(res);
+			mainMenu();
 		}
 	);
 }
