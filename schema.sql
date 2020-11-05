@@ -30,6 +30,13 @@ CREATE TABLE employees (
     first_name VARCHAR(30),
     last_name VARCHAR(30),
     role_id INT NOT NULL REFERENCES roles(id),
-    manager_id INT NULL REFERENCES employees(id),
+    manager_id INT NULL REFERENCES managers(id),
+    PRIMARY KEY (id)
+);
+
+-- create the managers table
+CREATE TABLE managers (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(60),
     PRIMARY KEY (id)
 );

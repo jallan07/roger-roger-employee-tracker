@@ -135,12 +135,21 @@ function viewAllEmployees() {
 		chalk.green("\r\nHere are all employees, ordered by ID numbers:\r\n")
 	);
 	let query = connection.query(
-		'SELECT employees.id AS "ID", employees.first_name AS "First Name", employees.last_name AS "Last Name", roles.title AS "Position", roles.salary AS "Salary", departments.name AS "Department", employees.manager_id AS "Manager" ' +
-			"FROM employees " +
-			"INNER JOIN roles " +
-			"ON (employees.role_id = roles.id) " +
-			"INNER JOIN departments " +
-			"ON (roles.department_id = departments.id)",
+		`SELECT 
+		e.id AS 'ID',
+		e.first_name AS 'First Name',
+		e.last_name AS 'Last Name',
+		roles.title AS 'Position',
+		departments.name AS Department,
+		CONCAT(m.first_name, ' ', m.last_name) AS Manager
+	FROM
+		employees_db.employees AS e
+			INNER JOIN
+		roles ON (e.role_id = roles.id)
+			INNER JOIN
+		departments ON (roles.department_id = departments.id)
+			LEFT JOIN
+		employees_db.employees m ON e.manager_id = m.id;`,
 		function (err, res) {
 			if (err) throw err;
 			console.table(res);
@@ -154,13 +163,22 @@ function viewAllEmployeeDepartments() {
 		chalk.green("\r\nHere are all employees, ordered by departments:\r\n")
 	);
 	let query = connection.query(
-		'SELECT employees.id AS "ID", employees.first_name AS "First Name", employees.last_name AS "Last Name", roles.title AS "Position", roles.salary AS "Salary", departments.name AS "Department", employees.manager_id AS "Manager" ' +
-			"FROM employees " +
-			"INNER JOIN roles " +
-			"ON (employees.role_id = roles.id) " +
-			"INNER JOIN departments " +
-			"ON (roles.department_id = departments.id) " +
-			"ORDER BY departments.name",
+		`SELECT 
+		e.id AS 'ID',
+		e.first_name AS 'First Name',
+		e.last_name AS 'Last Name',
+		roles.title AS 'Position',
+		departments.name AS Department,
+		CONCAT(m.first_name, ' ', m.last_name) AS Manager
+	FROM
+		employees_db.employees AS e
+			INNER JOIN
+		roles ON (e.role_id = roles.id)
+			INNER JOIN
+		departments ON (roles.department_id = departments.id)
+			LEFT JOIN
+		employees_db.employees m ON e.manager_id = m.id
+		ORDER BY departments.name;`,
 		function (err, res) {
 			if (err) throw err;
 			console.table(res);
@@ -174,13 +192,22 @@ function viewAllEmployeeManagers() {
 		chalk.green("\r\nHere are all employees, ordered by managers:\r\n")
 	);
 	let query = connection.query(
-		'SELECT employees.id AS "ID", employees.first_name AS "First Name", employees.last_name AS "Last Name", roles.title AS "Position", roles.salary AS "Salary", departments.name AS "Department", employees.manager_id AS "Manager" ' +
-			"FROM employees " +
-			"INNER JOIN roles " +
-			"ON (employees.role_id = roles.id) " +
-			"INNER JOIN departments " +
-			"ON (roles.department_id = departments.id) " +
-			"ORDER BY employees.manager_id",
+		`SELECT 
+		e.id AS 'ID',
+		e.first_name AS 'First Name',
+		e.last_name AS 'Last Name',
+		roles.title AS 'Position',
+		departments.name AS Department,
+		CONCAT(m.first_name, ' ', m.last_name) AS Manager
+	FROM
+		employees_db.employees AS e
+			INNER JOIN
+		roles ON (e.role_id = roles.id)
+			INNER JOIN
+		departments ON (roles.department_id = departments.id)
+			LEFT JOIN
+		employees_db.employees m ON e.manager_id = m.id
+		ORDER BY manager;`,
 		function (err, res) {
 			if (err) throw err;
 			console.table(res);
