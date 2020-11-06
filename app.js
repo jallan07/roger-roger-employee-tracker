@@ -41,7 +41,7 @@ function welcomePrompt() {
 			console.log(data);
 		});
 		// add lines under the ascii art
-		console.log("\r\n", "-".repeat(54));
+		console.log("-".repeat(54));
 		console.log(
 			"\r\nWith Roger Roger, you can update, track, and delete \r\nteam members from your employee database. Let's get \r\nstarted."
 		);
@@ -61,7 +61,11 @@ function mainMenu() {
 					"View all employees (by ID)",
 					"View all employees (by department)",
 					"View all employees (by manager)",
+					// "Add an employee",
 					"Add a department",
+					"Add a position",
+					"View all departments",
+					"View all positions",
 					"Exit",
 				],
 				name: "main",
@@ -81,16 +85,31 @@ function mainMenu() {
 				case "Add a department":
 					addDepartment();
 					break;
+				case "Add a position":
+					addPosition();
+					break;
+				case "View all departments":
+					viewDepartments();
+					break;
+				case "View all positions":
+					viewPositions();
+					break;
 				case "Exit":
 					connection.end();
+					exitPath();
 					break;
 			}
 		});
 }
 
+// =========================
+// All ADD functions
+// =========================
+
+// add an employee
+function addEmployee() {}
 // add a department
 function addDepartment() {
-	console.log("this is the department...");
 	inquirer
 		.prompt([
 			{
@@ -115,19 +134,91 @@ function addDepartment() {
 				function (err, res) {
 					if (err) throw err;
 					console.log(
-						chalk.bgCyan(
-							`${response.name} was department added to the department list!\nBelow is a list of all departments within your organization:`
+						chalk.green(
+							`\r\n${response.name} was added to the department list!`
 						)
 					);
+					viewDepartments();
 				}
 			);
-			connection.query("SELECT * FROM departments", function (err, res) {
-				if (err) throw err;
-				console.table(res);
-				connection.end();
-			});
 		});
 }
+// add a position
+function addPosition() {
+	connection.query("SELECT * FROM departments", function (err, results) {
+		if (err) throw err;
+		inquirer
+			.prompt([
+				{
+					type: "input",
+					message: "What position would you like to add?",
+					name: "title",
+					validate: function (value) {
+						if (!value) {
+							console.log("Please enter a name for the position.");
+							return false;
+						}
+						return true;
+					},
+				},
+				{
+					type: "input",
+					message: "What is the base salary?",
+					name: "salary",
+					validate: function (value) {
+						if (isNaN(value)) {
+							console.log("Please enter a number for the salary.");
+							return false;
+						}
+						return true;
+					},
+				},
+				{
+					type: "list",
+					message: "What department does this position live under?",
+					choices: function () {
+						var choiceArray = [];
+						for (var i = 0; i < results.length; i++) {
+							choiceArray.push(results[i].name);
+						}
+						return choiceArray;
+					},
+					name: "department",
+				},
+			])
+			.then((response) => {
+				let departmentID = connection.query(
+					`SELECT id FROM departments WHERE name = '${response.department}'`,
+					function (err, res) {
+						if (err) throw err;
+						console.log(res[0].id);
+						return res[0].id;
+					}
+				);
+				let query = connection.query(
+					"INSERT INTO roles SET ?",
+					{
+						title: response.title,
+						salary: response.salary,
+						department_id: departmentID,
+					},
+					function (err, res) {
+						if (err) throw err;
+						console.log(
+							chalk.green(
+								`\r\n${response.title} was added to the position list!`
+							)
+						);
+						viewPositions();
+					}
+				);
+			});
+	});
+}
+
+// =========================
+// All VIEW functions
+// =========================
 
 // view all employees (by ID)
 function viewAllEmployees() {
@@ -137,9 +228,9 @@ function viewAllEmployees() {
 	let query = connection.query(
 		`SELECT 
 		e.id AS 'ID',
-		e.first_name AS 'First Name',
-		e.last_name AS 'Last Name',
+		CONCAT(e.first_name, ' ', e.last_name) AS Employee,
 		roles.title AS 'Position',
+		roles.salary AS 'Salary',
 		departments.name AS Department,
 		CONCAT(m.first_name, ' ', m.last_name) AS Manager
 	FROM
@@ -165,9 +256,9 @@ function viewAllEmployeeDepartments() {
 	let query = connection.query(
 		`SELECT 
 		e.id AS 'ID',
-		e.first_name AS 'First Name',
-		e.last_name AS 'Last Name',
+		CONCAT(e.first_name, ' ', e.last_name) AS Employee,
 		roles.title AS 'Position',
+		roles.salary AS 'Salary',
 		departments.name AS Department,
 		CONCAT(m.first_name, ' ', m.last_name) AS Manager
 	FROM
@@ -194,9 +285,9 @@ function viewAllEmployeeManagers() {
 	let query = connection.query(
 		`SELECT 
 		e.id AS 'ID',
-		e.first_name AS 'First Name',
-		e.last_name AS 'Last Name',
+		CONCAT(e.first_name, ' ', e.last_name) AS Employee,
 		roles.title AS 'Position',
+		roles.salary AS 'Salary',
 		departments.name AS Department,
 		CONCAT(m.first_name, ' ', m.last_name) AS Manager
 	FROM
@@ -214,6 +305,59 @@ function viewAllEmployeeManagers() {
 			mainMenu();
 		}
 	);
+}
+// view all departments within the company
+function viewDepartments() {
+	console.log(
+		chalk.green("\r\nHere are all departments within your organization:\r\n")
+	);
+	let query = connection.query(
+		`SELECT id AS 'ID', name AS 'Department' FROM departments;`,
+		function (err, res) {
+			if (err) throw err;
+			console.table(res);
+			mainMenu();
+		}
+	);
+}
+// view all positions within the company
+function viewPositions() {
+	console.log(
+		chalk.green("\r\nHere are all departments within your organization:\r\n")
+	);
+	let query = connection.query(
+		`SELECT id AS 'Job ID', title AS 'Position', salary AS 'Salary' FROM roles;`,
+		function (err, res) {
+			if (err) throw err;
+			console.table(res);
+			mainMenu();
+		}
+	);
+}
+
+// exit path
+function exitPath() {
+	// add lines above the ascii art
+	console.log("\r", "-".repeat(54));
+	// display ascii art using the figlet package
+	figlet("B  Y  E", function (err, data) {
+		if (err) {
+			console.log("Something went wrong...");
+			console.dir(err);
+			return;
+		}
+		console.log(data);
+		figlet("B  Y  E", function (err, data) {
+			if (err) {
+				console.log("Something went wrong...");
+				console.dir(err);
+				return;
+			}
+			console.log(data);
+		});
+		// add lines under the ascii art
+		console.log("-".repeat(54));
+	});
 }
 
 // =============================
