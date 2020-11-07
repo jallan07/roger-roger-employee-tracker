@@ -32,7 +32,7 @@ Build a command-line application that at a minimum allows the user to:
 
 - [DONE] ~~Add departments~~
 
-- Add roles
+- [DONE] ~~Add roles~~
 
 - Add employees
 
