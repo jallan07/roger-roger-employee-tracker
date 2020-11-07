@@ -20,6 +20,10 @@ connection.connect(function (err) {
 	welcomePrompt();
 });
 
+// =========================
+// WELCOME PROMPT function
+// =========================
+
 // create the welcomePrompt function
 function welcomePrompt() {
 	// add lines above the ascii art
@@ -49,6 +53,10 @@ function welcomePrompt() {
 		mainMenu();
 	});
 }
+
+// =========================
+// MENU function
+// =========================
 
 // function that shows the app's main menu
 function mainMenu() {
@@ -187,29 +195,27 @@ function addPosition() {
 				},
 			])
 			.then((response) => {
-				let departmentID = connection.query(
+				connection.query(
 					`SELECT id FROM departments WHERE name = '${response.department}'`,
 					function (err, res) {
 						if (err) throw err;
-						console.log(res[0].id);
-						return res[0].id;
-					}
-				);
-				let query = connection.query(
-					"INSERT INTO roles SET ?",
-					{
-						title: response.title,
-						salary: response.salary,
-						department_id: departmentID,
-					},
-					function (err, res) {
-						if (err) throw err;
-						console.log(
-							chalk.green(
-								`\r\n${response.title} was added to the position list!`
-							)
+						connection.query(
+							"INSERT INTO roles SET ?",
+							{
+								title: response.title,
+								salary: response.salary,
+								department_id: res[0].id,
+							},
+							function (err, res) {
+								if (err) throw err;
+								console.log(
+									chalk.green(
+										`\r\n${response.title} was added to the position list!`
+									)
+								);
+								viewPositions();
+							}
 						);
-						viewPositions();
 					}
 				);
 			});
