@@ -20,6 +20,11 @@ connection.connect(function (err) {
 	welcomePrompt();
 });
 
+let managerID;
+let managerArr;
+let managerFName;
+let managerLName;
+
 // =========================
 // WELCOME PROMPT function
 // =========================
@@ -69,7 +74,7 @@ function mainMenu() {
 					"View all employees (by ID)",
 					"View all employees (by department)",
 					"View all employees (by manager)",
-					// "Add an employee",
+					"Add an employee",
 					"Add a department",
 					"Add a position",
 					"View all departments",
@@ -89,6 +94,9 @@ function mainMenu() {
 					break;
 				case "View all employees (by manager)":
 					viewAllEmployeeManagers();
+					break;
+				case "Add an employee":
+					addEmployee();
 					break;
 				case "Add a department":
 					addDepartment();
@@ -115,7 +123,92 @@ function mainMenu() {
 // =========================
 
 // add an employee
-function addEmployee() {}
+function addEmployee() {
+	connection.query("SELECT * FROM roles", function (err, results) {
+		if (err) throw err;
+		console.log("test successful");
+		inquirer
+			.prompt([
+				{
+					type: "input",
+					message: "What is the first name of the new employee?",
+					name: "fname",
+					validate: function (value) {
+						if (!value) {
+							console.log("Please enter a first name for the new employee.");
+							return false;
+						}
+						return true;
+					},
+				},
+				{
+					type: "input",
+					message: "What is the last name of the new employee?",
+					name: "lname",
+					validate: function (value) {
+						if (!value) {
+							console.log("Please enter a last name for the new employee.");
+							return false;
+						}
+						return true;
+					},
+				},
+				{
+					type: "list",
+					message: "What is their position within the organization?",
+					name: "position",
+					choices: function () {
+						var choiceArray = [];
+						for (var i = 0; i < results.length; i++) {
+							choiceArray.push(results[i].title);
+						}
+						return choiceArray;
+					},
+				},
+				{
+					type: "list",
+					message: "Who is their manager?",
+					name: "manager",
+					choices: getManagers(),
+				},
+			])
+			.then((response) => {
+				// slipt out the manager name into an array
+				managerArr = response.manager.split(" ");
+				// set the first and last name variables for the manager
+				managerFName = managerArr[0];
+				managerLName = managerArr[1];
+				// select the proper roles id from the database
+				connection.query(
+					`SELECT id FROM roles WHERE title = '${response.position}'`,
+					function (err, res) {
+						// get the manager ID
+						getManagerID();
+						if (err) throw err;
+						// set the values in the database
+						connection.query(
+							"INSERT INTO employees SET ?",
+							{
+								first_name: response.fname,
+								last_name: response.lname,
+								role_id: res[0].id,
+								manager_id: managerID,
+							},
+							function (err, res) {
+								if (err) throw err;
+								console.log(
+									chalk.green(
+										`\r\n${response.fname} ${response.lname} was added to the employee list!`
+									)
+								);
+								viewAllEmployees();
+							}
+						);
+					}
+				);
+			});
+	});
+}
 // add a department
 function addDepartment() {
 	inquirer
@@ -367,4 +460,28 @@ function exitPath() {
 }
 
 // =============================
+// Helper functions
 // =============================
+function getManagers() {
+	let managers = [];
+	connection.query("SELECT * FROM employees", function (err, results) {
+		if (err) throw err;
+		for (let i = 0; i < results.length; i++) {
+			managers.push(results[i].first_name + " " + results[i].last_name);
+		}
+		return managers;
+	});
+	return managers;
+}
+
+function getManagerID() {
+	console.log(managerFName + " " + managerLName);
+	connection.query(
+		`SELECT id FROM employees WHERE first_name = '${managerFName}' AND last_name = '${managerLName}'`,
+		function (err, res) {
+			console.log(res[0].id);
+			if (err) throw err;
+			return res[0].id;
+		}
+	);
+}
