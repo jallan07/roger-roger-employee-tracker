@@ -329,7 +329,8 @@ function updateEmployeePosition() {
 			.prompt([
 				{
 					type: "list",
-					message: "What is the updated position?",
+					message:
+						"Select the updated position you want to set for the employee:",
 					name: "position",
 					choices: function () {
 						var choiceArray = [];
@@ -341,7 +342,7 @@ function updateEmployeePosition() {
 				},
 				{
 					type: "list",
-					message: "Who should be updated?",
+					message: "Who should this updated position be applied to?",
 					name: "employee",
 					choices: employeeList(),
 				},
@@ -500,6 +501,22 @@ function viewPositions() {
 	);
 }
 
+// =============================
+// Other HELPER functions
+// =============================
+// employee list function
+function employeeList() {
+	let employees = [];
+	connection.query("SELECT * FROM employees", function (err, results) {
+		if (err) throw err;
+		for (let i = 0; i < results.length; i++) {
+			employees.push(results[i].first_name + " " + results[i].last_name);
+		}
+		return employees;
+	});
+	return employees;
+}
+
 // exit path
 function exitPath() {
 	// add lines above the ascii art
@@ -523,19 +540,4 @@ function exitPath() {
 		// add lines under the ascii art
 		console.log("-".repeat(54));
 	});
-}
-
-// =============================
-// Other HELPER functions
-// =============================
-function employeeList() {
-	let employees = [];
-	connection.query("SELECT * FROM employees", function (err, results) {
-		if (err) throw err;
-		for (let i = 0; i < results.length; i++) {
-			employees.push(results[i].first_name + " " + results[i].last_name);
-		}
-		return employees;
-	});
-	return employees;
 }
