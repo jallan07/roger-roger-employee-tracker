@@ -385,7 +385,6 @@ function updateEmployeePosition() {
 // =========================
 // All VIEW functions
 // =========================
-
 // view all employees (by ID)
 function viewAllEmployees() {
 	console.log(
