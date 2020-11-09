@@ -20,11 +20,6 @@ connection.connect(function (err) {
 	welcomePrompt();
 });
 
-let managerID;
-let managerArr;
-let managerFName;
-let managerLName;
-
 // =========================
 // WELCOME PROMPT function
 // =========================
@@ -173,7 +168,7 @@ function addEmployee() {
 				},
 			])
 			.then((response) => {
-				// slipt out the manager name into an array
+				// split out the manager name into an array
 				managerArr = response.manager.split(" ");
 				// set the first and last name variables for the manager
 				managerFName = managerArr[0];
@@ -181,27 +176,44 @@ function addEmployee() {
 				// select the proper roles id from the database
 				connection.query(
 					`SELECT id FROM roles WHERE title = '${response.position}'`,
-					function (err, res) {
-						// get the manager ID
-						getManagerID();
+					// if err, throw err ELSE store results in the "pos" variable
+					function (err, pos) {
 						if (err) throw err;
-						// set the values in the database
+						// select the proper manager id from the database
 						connection.query(
-							"INSERT INTO employees SET ?",
-							{
-								first_name: response.fname,
-								last_name: response.lname,
-								role_id: res[0].id,
-								manager_id: managerID,
-							},
-							function (err, res) {
+							`SELECT id FROM employees WHERE first_name = '${managerFName}' AND last_name = '${managerLName}'`,
+							// if err, throw err ELSE store results in the "man" variable
+							function (err, man) {
 								if (err) throw err;
-								console.log(
-									chalk.green(
-										`\r\n${response.fname} ${response.lname} was added to the employee list!`
-									)
+								// set the values in the database
+								connection.query(
+									"INSERT INTO employees SET ?",
+									{
+										first_name: response.fname,
+										last_name: response.lname,
+										// role id is set to variable stored in pos[0].id
+										role_id: pos[0].id,
+										manager_id: function () {
+											// if null was selected for manager, then set to null in database
+											if (response.manager === "null") {
+												return null;
+											}
+											// else, manager id is set to variable stored in man[0].id
+											else {
+												return man[0].id;
+											}
+										},
+									},
+									function (err, res) {
+										if (err) throw err;
+										console.log(
+											chalk.green(
+												`\r\n${response.fname} ${response.lname} was added to the employee list!`
+											)
+										);
+										viewAllEmployees();
+									}
 								);
-								viewAllEmployees();
 							}
 						);
 					}
@@ -469,19 +481,8 @@ function getManagers() {
 		for (let i = 0; i < results.length; i++) {
 			managers.push(results[i].first_name + " " + results[i].last_name);
 		}
+		managers.push("null");
 		return managers;
 	});
 	return managers;
-}
-
-function getManagerID() {
-	console.log(managerFName + " " + managerLName);
-	connection.query(
-		`SELECT id FROM employees WHERE first_name = '${managerFName}' AND last_name = '${managerLName}'`,
-		function (err, res) {
-			console.log(res[0].id);
-			if (err) throw err;
-			return res[0].id;
-		}
-	);
 }
