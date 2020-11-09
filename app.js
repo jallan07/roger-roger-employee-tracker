@@ -23,7 +23,6 @@ connection.connect(function (err) {
 // =========================
 // WELCOME PROMPT function
 // =========================
-
 // create the welcomePrompt function
 function welcomePrompt() {
 	// add lines above the ascii art
@@ -57,7 +56,6 @@ function welcomePrompt() {
 // =========================
 // MENU function
 // =========================
-
 // function that shows the app's main menu
 function mainMenu() {
 	inquirer
@@ -72,6 +70,7 @@ function mainMenu() {
 					"Add an employee",
 					"Add a department",
 					"Add a position",
+					"Update an employee's position",
 					"View all departments",
 					"View all positions",
 					"Exit",
@@ -99,6 +98,9 @@ function mainMenu() {
 				case "Add a position":
 					addPosition();
 					break;
+				case "Update an employee's position":
+					updateEmployeePosition();
+					break;
 				case "View all departments":
 					viewDepartments();
 					break;
@@ -116,12 +118,10 @@ function mainMenu() {
 // =========================
 // All ADD functions
 // =========================
-
 // add an employee
 function addEmployee() {
 	connection.query("SELECT * FROM roles", function (err, results) {
 		if (err) throw err;
-		console.log("test successful");
 		inquirer
 			.prompt([
 				{
@@ -164,7 +164,7 @@ function addEmployee() {
 					type: "list",
 					message: "Who is their manager?",
 					name: "manager",
-					choices: getManagers(),
+					choices: employeeList(),
 				},
 			])
 			.then((response) => {
@@ -193,16 +193,8 @@ function addEmployee() {
 										last_name: response.lname,
 										// role id is set to variable stored in pos[0].id
 										role_id: pos[0].id,
-										manager_id: function () {
-											// if null was selected for manager, then set to null in database
-											if (response.manager === "null") {
-												return null;
-											}
-											// else, manager id is set to variable stored in man[0].id
-											else {
-												return man[0].id;
-											}
-										},
+										// manager id is set to variable stored in man[0].id
+										manager_id: man[0].id,
 									},
 									function (err, res) {
 										if (err) throw err;
@@ -319,6 +311,68 @@ function addPosition() {
 									)
 								);
 								viewPositions();
+							}
+						);
+					}
+				);
+			});
+	});
+}
+
+// =========================
+// All UPDATE functions
+// =========================
+function updateEmployeePosition() {
+	connection.query("SELECT * FROM roles", function (err, results) {
+		if (err) throw err;
+		inquirer
+			.prompt([
+				{
+					type: "list",
+					message: "What is the updated position?",
+					name: "position",
+					choices: function () {
+						var choiceArray = [];
+						for (var i = 0; i < results.length; i++) {
+							choiceArray.push(results[i].title);
+						}
+						return choiceArray;
+					},
+				},
+				{
+					type: "list",
+					message: "Who should be updated?",
+					name: "employee",
+					choices: employeeList(),
+				},
+			])
+			.then((response) => {
+				// split out the manager name into an array
+				employeeArr = response.employee.split(" ");
+				// set the first and last name variables for the manager
+				employeeFName = employeeArr[0];
+				employeeLName = employeeArr[1];
+				connection.query(
+					`SELECT id FROM roles WHERE title = '${response.position}'`,
+					// if err, throw err ELSE store results in the "pos" variable
+					function (err, pos) {
+						if (err) throw err;
+						connection.query(
+							`SELECT id FROM employees WHERE first_name = '${employeeFName}' AND last_name = '${employeeLName}'`,
+							// if err, throw err ELSE store results in the "man" variable
+							function (err, emp) {
+								if (err) throw err;
+								connection.query(
+									`UPDATE employees SET role_id = '${pos[0].id}' WHERE id = '${emp[0].id}'`,
+									function (err, res) {
+										console.log(
+											chalk.green(
+												`\r\n${employeeFName} ${employeeLName} has been updated!`
+											)
+										);
+										viewAllEmployees();
+									}
+								);
 							}
 						);
 					}
@@ -472,17 +526,16 @@ function exitPath() {
 }
 
 // =============================
-// Helper functions
+// Other HELPER functions
 // =============================
-function getManagers() {
-	let managers = [];
+function employeeList() {
+	let employees = [];
 	connection.query("SELECT * FROM employees", function (err, results) {
 		if (err) throw err;
 		for (let i = 0; i < results.length; i++) {
-			managers.push(results[i].first_name + " " + results[i].last_name);
+			employees.push(results[i].first_name + " " + results[i].last_name);
 		}
-		managers.push("null");
-		return managers;
+		return employees;
 	});
-	return managers;
+	return employees;
 }
